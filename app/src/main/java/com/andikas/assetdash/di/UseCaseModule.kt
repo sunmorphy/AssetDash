@@ -1,10 +1,14 @@
 package com.andikas.assetdash.di
 
+import com.andikas.assetdash.data.local.dao.AssetDao
+import com.andikas.assetdash.data.local.dao.TransactionDao
 import com.andikas.assetdash.domain.repository.AssetRepository
+import com.andikas.assetdash.domain.usecase.AddTransactionUseCase
 import com.andikas.assetdash.domain.usecase.GetCoinByIdUseCase
 import com.andikas.assetdash.domain.usecase.GetCoinDetailsUseCase
 import com.andikas.assetdash.domain.usecase.GetCoinMarketsUseCase
 import com.andikas.assetdash.domain.usecase.GetFavoriteCoinsUseCase
+import com.andikas.assetdash.domain.usecase.GetPortfolioUseCase
 import com.andikas.assetdash.domain.usecase.UpdateFavoriteStatusUseCase
 import dagger.Module
 import dagger.Provides
@@ -54,5 +58,22 @@ object UseCaseModule {
         repository: AssetRepository
     ): GetCoinByIdUseCase {
         return GetCoinByIdUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideAddTransactionUseCase(
+        repository: AssetRepository
+    ): AddTransactionUseCase {
+        return AddTransactionUseCase(repository)
+    }
+
+    @Provides
+    @ViewModelScoped
+    fun provideGetPortfolioUseCase(
+        assetDao: AssetDao,
+        transactionDao: TransactionDao
+    ): GetPortfolioUseCase {
+        return GetPortfolioUseCase(assetDao, transactionDao)
     }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import com.andikas.assetdash.data.local.AssetDatabase
 import com.andikas.assetdash.data.local.dao.AssetDao
+import com.andikas.assetdash.data.local.dao.TransactionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,5 +33,11 @@ object DatabaseModule {
     @Singleton
     fun provideAssetDao(db: AssetDatabase): AssetDao {
         return db.assetDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideTransactionDao(db: AssetDatabase): TransactionDao {
+        return db.transactionDao()
     }
 }

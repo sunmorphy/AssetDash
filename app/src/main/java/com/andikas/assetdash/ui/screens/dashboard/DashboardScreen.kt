@@ -1,6 +1,7 @@
 package com.andikas.assetdash.ui.screens.dashboard
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,11 +12,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -29,51 +36,93 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.andikas.assetdash.domain.model.Coin
+import com.andikas.assetdash.ui.components.PortfolioCard
 
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel = hiltViewModel(),
-    onCoinClick: (String) -> Unit
+    onCoinClick: (String) -> Unit,
+    onAddTransactionClick: () -> Unit
 ) {
-    val state by viewModel.state.collectAsState()
+    val portfolioState by viewModel.portfolioState.collectAsState()
+    val marketState by viewModel.marketState.collectAsState()
+    val selectedTabIndex by viewModel.selectedTabIndex.collectAsState()
+
     val tabTitles = listOf("Semua Aset", "Favorit")
 
-    Column(modifier = Modifier.fillMaxSize()) {
-
-        SecondaryTabRow(selectedTabIndex = state.selectedTabIndex) {
-            tabTitles.forEachIndexed { index, title ->
-                Tab(
-                    selected = state.selectedTabIndex == index,
-                    onClick = { viewModel.onTabSelected(index) },
-                    text = { Text(title) }
-                )
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(onClick = onAddTransactionClick) {
+                Icon(Icons.Default.Add, contentDescription = "Add Transaction")
             }
         }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            PortfolioSection(state = portfolioState)
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                items(state.coins) { coin ->
-                    CoinListItem(coin = coin, onItemClick = onCoinClick)
-                    Spacer(modifier = Modifier.height(16.dp))
+            SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
+                tabTitles.forEachIndexed { index, title ->
+                    Tab(
+                        selected = selectedTabIndex == index,
+                        onClick = { viewModel.onTabSelected(index) },
+                        text = { Text(title) }
+                    )
                 }
             }
 
-            if (state.error != null) {
-                Text(
-                    text = state.error!!,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(16.dp)
-                )
-            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    items(marketState.coins) { coin ->
+                        CoinListItem(coin = coin, onItemClick = onCoinClick)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
 
-            if (state.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                if (marketState.error != null) {
+                    Text(
+                        text = marketState.error!!,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(16.dp)
+                    )
+                }
+
+                if (marketState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun PortfolioSection(state: PortfolioUiState) {
+    if (state.isLoading) {
+        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+    }
+
+    if (state.error != null) {
+        Text(
+            text = state.error,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        items(state.portfolio) { portfolioItem ->
+            PortfolioCard(item = portfolioItem)
         }
     }
 }

@@ -6,9 +6,12 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.andikas.assetdash.ui.screens.add_transaction.AddTransactionScreen
 import com.andikas.assetdash.ui.screens.dashboard.DashboardScreen
 import com.andikas.assetdash.ui.screens.detail.DetailScreen
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(
@@ -19,6 +22,9 @@ fun NavGraph(navController: NavHostController) {
             DashboardScreen(
                 onCoinClick = { coinId ->
                     navController.navigate("${Screen.Detail.route}/$coinId")
+                },
+                onAddTransactionClick = {
+                    navController.navigate(Screen.AddTransaction.route)
                 }
             )
         }
@@ -32,6 +38,14 @@ fun NavGraph(navController: NavHostController) {
             )
         ) {
             DetailScreen(navController = navController)
+        }
+
+        composable(route = Screen.AddTransaction.route) {
+            AddTransactionScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

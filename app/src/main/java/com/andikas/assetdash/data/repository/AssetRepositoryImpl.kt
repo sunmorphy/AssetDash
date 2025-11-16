@@ -1,6 +1,8 @@
 package com.andikas.assetdash.data.repository
 
 import com.andikas.assetdash.data.local.dao.AssetDao
+import com.andikas.assetdash.data.local.dao.TransactionDao
+import com.andikas.assetdash.data.local.entity.TransactionEntity
 import com.andikas.assetdash.data.local.mapper.toCoin
 import com.andikas.assetdash.data.local.mapper.toCoinDetail
 import com.andikas.assetdash.data.remote.ApiService
@@ -21,7 +23,8 @@ import javax.inject.Singleton
 @Singleton
 class AssetRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
-    private val dao: AssetDao
+    private val dao: AssetDao,
+    private val transactionDao: TransactionDao
 ) : AssetRepository {
 
     override fun getCoinMarkets(): Flow<Resource<List<Coin>>> = networkBoundResource(
@@ -97,5 +100,9 @@ class AssetRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             emit(Resource.Error("Gagal mengambil data koin: ${e.message}"))
         }
+    }
+
+    override suspend fun addTransaction(transaction: TransactionEntity) {
+        transactionDao.insertTransaction(transaction)
     }
 }
