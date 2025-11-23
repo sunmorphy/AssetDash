@@ -20,4 +20,6 @@ interface AssetRepository {
     suspend fun addTransaction(transaction: TransactionEntity)
 
     fun getCoinMarketChart(coinId: String): Flow<Resource<List<PricePoint>>>
+
+    suspend fun refreshCoinMarkets()
 }

@@ -123,4 +123,24 @@ class AssetRepositoryImpl @Inject constructor(
             emit(Resource.Error("Gagal memuat grafik: ${e.message}"))
         }
     }
+
+    override suspend fun refreshCoinMarkets() {
+        try {
+            val remoteData = apiService.getCoinMarkets()
+
+            val oldCache = dao.getCoins().first()
+            val favoriteMap = oldCache.associate { it.id to it.isFavorite }
+
+            val newEntities = remoteData.map { dto ->
+                dto.toCoinEntity().copy(
+                    isFavorite = favoriteMap[dto.id] ?: false
+                )
+            }
+
+            dao.deleteAllCoins()
+            dao.insertCoins(newEntities)
+        } catch (e: Exception) {
+            throw e
+        }
+    }
 }

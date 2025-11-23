@@ -20,6 +20,8 @@ okhttp = "5.3.0"
 room = "2.8.3"
 coil-compose = "2.5.0"
 vico = "1.13.1"
+work = "2.9.0"
+hiltWork = "1.1.0"
 ksp = "2.2.20-2.0.2"
 junitJupiter = "5.8.1"
 
@@ -73,6 +75,9 @@ junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.r
 vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
 vico-compose-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
 vico-core = { module = "com.patrykandpatrick.vico:core", version.ref = "vico" }
+
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+androidx-hilt-work = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
