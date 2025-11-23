@@ -37,6 +37,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.andikas.assetdash.data.local.entity.TransactionEntity
+import com.andikas.assetdash.ui.components.ExpandableText
 import com.andikas.assetdash.ui.components.PriceChart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -103,7 +104,9 @@ fun DetailScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     if (state.isChartLoading) {
-                        Box(modifier = Modifier.height(250.dp).fillMaxWidth()) {
+                        Box(modifier = Modifier
+                            .height(250.dp)
+                            .fillMaxWidth()) {
                             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                         }
                     } else if (state.priceHistory.isNotEmpty()) {
@@ -122,12 +125,8 @@ fun DetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    Text(
-                        text = android.text.Html.fromHtml(
-                            coin.description,
-                            android.text.Html.FROM_HTML_MODE_COMPACT
-                        ).toString(),
-                        style = MaterialTheme.typography.bodyLarge
+                    ExpandableText(
+                        htmlDescription = coin.description
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
