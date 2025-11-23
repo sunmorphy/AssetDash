@@ -1,9 +1,12 @@
 package com.andikas.assetdash.ui.screens.detail
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +18,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +36,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.andikas.assetdash.data.local.entity.TransactionEntity
+import com.andikas.assetdash.ui.components.PriceChart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalCoroutinesApi::class)
@@ -96,6 +102,26 @@ fun DetailScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    if (state.isChartLoading) {
+                        Box(modifier = Modifier.height(250.dp).fillMaxWidth()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    } else if (state.priceHistory.isNotEmpty()) {
+                        Text(
+                            text = "Grafik Harga (7 Hari)",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        PriceChart(
+                            dataPoints = state.priceHistory,
+                            modifier = Modifier.padding(bottom = 24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     Text(
                         text = android.text.Html.fromHtml(
                             coin.description,
@@ -103,6 +129,25 @@ fun DetailScreen(
                         ).toString(),
                         style = MaterialTheme.typography.bodyLarge
                     )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Text(
+                        text = "Riwayat Transaksi",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    if (state.transactions.isEmpty()) {
+                        Text("Belum ada transaksi.", color = Color.Gray)
+                    } else {
+                        state.transactions.forEach { tx ->
+                            TransactionItem(tx)
+                            HorizontalDivider()
+                        }
+                    }
                 }
             }
 
@@ -117,6 +162,38 @@ fun DetailScreen(
             if (state.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
+        }
+    }
+}
+
+@Composable
+fun TransactionItem(tx: TransactionEntity) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Column {
+            Text(
+                text = "Beli",
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF00C853)
+            )
+            Text(
+                text = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault())
+                    .format(tx.date),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            Text(text = "${tx.amount} Koin")
+            Text(
+                text = "@ Rp ${java.text.DecimalFormat("#,###").format(tx.pricePerCoin)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
         }
     }
 }

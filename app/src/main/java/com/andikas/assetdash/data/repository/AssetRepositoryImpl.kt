@@ -10,6 +10,7 @@ import com.andikas.assetdash.data.remote.mapper.toCoinDetailEntity
 import com.andikas.assetdash.data.remote.mapper.toCoinEntity
 import com.andikas.assetdash.domain.model.Coin
 import com.andikas.assetdash.domain.model.CoinDetail
+import com.andikas.assetdash.domain.model.PricePoint
 import com.andikas.assetdash.domain.model.Resource
 import com.andikas.assetdash.domain.repository.AssetRepository
 import com.andikas.assetdash.utils.networkBoundResource
@@ -104,5 +105,22 @@ class AssetRepositoryImpl @Inject constructor(
 
     override suspend fun addTransaction(transaction: TransactionEntity) {
         transactionDao.insertTransaction(transaction)
+    }
+
+    override fun getCoinMarketChart(coinId: String): Flow<Resource<List<PricePoint>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val response = apiService.getMarketChart(coinId)
+            val pricePoints = response.prices?.map { item ->
+                PricePoint(
+                    timestamp = item[0].toLong(),
+                    price = item[1].toFloat()
+                )
+            } ?: emptyList()
+
+            emit(Resource.Success(pricePoints))
+        } catch (e: Exception) {
+            emit(Resource.Error("Gagal memuat grafik: ${e.message}"))
+        }
     }
 }

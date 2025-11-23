@@ -29,7 +29,17 @@ class DashboardViewModel @Inject constructor(
         getPortfolioUseCase().map { resource ->
             when (resource) {
                 is Resource.Loading -> PortfolioUiState(isLoading = true)
-                is Resource.Success -> PortfolioUiState(portfolio = resource.data ?: emptyList())
+                is Resource.Success -> {
+                    val items = resource.data ?: emptyList()
+                    val totalValue = items.sumOf { it.totalCurrentValue }
+
+                    PortfolioUiState(
+                        portfolio = items,
+                        totalNetWorth = totalValue,
+                        isLoading = false
+                    )
+                }
+
                 is Resource.Error -> PortfolioUiState(error = resource.message)
             }
         }.stateIn(

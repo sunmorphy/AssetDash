@@ -25,16 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.andikas.assetdash.domain.model.PortfolioItem
-import java.text.DecimalFormat
+import com.andikas.assetdash.utils.formatAmount
+import com.andikas.assetdash.utils.formatRupiah
 
-private fun formatRupiah(amount: Double): String {
-    val formatter = DecimalFormat("#,###")
-    return "Rp ${formatter.format(amount.toLong()).replace(',', '.')}"
-}
-
-private fun formatAmount(amount: Double, symbol: String): String {
-    return "%.4f %s".format(amount, symbol.uppercase())
-}
 
 @Composable
 fun PortfolioCard(

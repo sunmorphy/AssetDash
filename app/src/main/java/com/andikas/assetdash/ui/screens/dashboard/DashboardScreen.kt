@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.andikas.assetdash.domain.model.Coin
 import com.andikas.assetdash.ui.components.PortfolioCard
+import com.andikas.assetdash.utils.formatRupiah
 
 @Composable
 fun DashboardScreen(
@@ -62,6 +63,24 @@ fun DashboardScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "Total Kekayaan Anda",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.Gray
+                )
+                Text(
+                    text = formatRupiah(portfolioState.totalNetWorth),
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
             PortfolioSection(state = portfolioState)
 
             SecondaryTabRow(selectedTabIndex = selectedTabIndex) {

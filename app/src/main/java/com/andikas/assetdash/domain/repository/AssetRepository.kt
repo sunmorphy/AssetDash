@@ -3,6 +3,7 @@ package com.andikas.assetdash.domain.repository
 import com.andikas.assetdash.data.local.entity.TransactionEntity
 import com.andikas.assetdash.domain.model.Coin
 import com.andikas.assetdash.domain.model.CoinDetail
+import com.andikas.assetdash.domain.model.PricePoint
 import com.andikas.assetdash.domain.model.Resource
 import kotlinx.coroutines.flow.Flow
 
@@ -17,4 +18,6 @@ interface AssetRepository {
     fun getCoinById(coinId: String): Flow<Resource<Coin>>
 
     suspend fun addTransaction(transaction: TransactionEntity)
+
+    fun getCoinMarketChart(coinId: String): Flow<Resource<List<PricePoint>>>
 }

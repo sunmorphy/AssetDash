@@ -8,6 +8,8 @@ import com.andikas.assetdash.domain.model.CoinDetail
 import com.andikas.assetdash.domain.model.Resource
 import com.andikas.assetdash.domain.usecase.GetCoinByIdUseCase
 import com.andikas.assetdash.domain.usecase.GetCoinDetailsUseCase
+import com.andikas.assetdash.domain.usecase.GetCoinMarketChartUseCase
+import com.andikas.assetdash.domain.usecase.GetTransactionsForCoinUseCase
 import com.andikas.assetdash.domain.usecase.UpdateFavoriteStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -27,6 +29,8 @@ class DetailViewModel @Inject constructor(
     private val getCoinDetailsUseCase: GetCoinDetailsUseCase,
     private val getCoinByIdUseCase: GetCoinByIdUseCase,
     private val updateFavoriteStatusUseCase: UpdateFavoriteStatusUseCase,
+    private val getTransactionsForCoinUseCase: GetTransactionsForCoinUseCase,
+    private val getCoinMarketChartUseCase: GetCoinMarketChartUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -48,10 +52,22 @@ class DetailViewModel @Inject constructor(
         }
     }
 
+    private val transactionsFlow = coinId.flatMapLatest { id ->
+        if (id.isNotBlank()) getTransactionsForCoinUseCase(id)
+        else flowOf(emptyList())
+    }
+
+    private val chartFlow = coinId.flatMapLatest { id ->
+        if (id.isNotBlank()) getCoinMarketChartUseCase(id)
+        else flowOf(Resource.Error("Invalid ID"))
+    }
+
     val state: StateFlow<DetailState> = combine(
         coinDetailsFlow,
-        favoriteStatusFlow
-    ) { detailsResource, favoriteResource ->
+        favoriteStatusFlow,
+        transactionsFlow,
+        chartFlow
+    ) { detailsResource, favoriteResource, transactionsList, chart ->
 
         val coinData = detailsResource.data
         val isFavorite = (favoriteResource as? Resource.Success)?.data?.isFavorite ?: false
@@ -62,11 +78,17 @@ class DetailViewModel @Inject constructor(
         else if (favoriteResource is Resource.Error) favoriteResource.message
         else null
 
+        val chartData = chart.data ?: emptyList()
+        val isChartLoading = chart is Resource.Loading
+
         DetailState(
             isLoading = isLoading,
             coin = coinData,
+            transactions = transactionsList,
             isFavorite = isFavorite,
-            error = error
+            error = error,
+            priceHistory = chartData,
+            isChartLoading = isChartLoading
         )
     }.stateIn(
         scope = viewModelScope,
